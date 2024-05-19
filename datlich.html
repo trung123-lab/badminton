@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            background: white;
+        }
+
+        .time-slots a {
+            display: block;
+            text-align: center;
+            padding: 10px 0;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .time-slots a:hover {
+            background-color: #0056b3;
+        }
+
+        .time-slots a.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .time-slots a.selected {
+            background-color: gray;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form id="scheduleForm" method="post" action="/schedule">
+        <div class="form-group">
+            <label for="date">Ngày:</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+
+        <div class="form-group">
+            <label for="time">Giờ:</label>
+            <div class="time-slots" id="timeSlots">
+                <!-- JavaScript will populate time slots here -->
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit">Đặt lịch</button>
+        </div>
+        <input type="hidden" name="time" required>
+    </form>
+
+    <script>
+        const bookedSlots = []; // Assuming bookedSlots is provided by the server-side
+
+        function generateTimeSlots() {
+            const timeSlotsContainer = document.getElementById('timeSlots');
+            const times = [];
+            for (let hour = 6; hour <= 22; hour++) {
+                times.push(`${String(hour).padStart(2, '0')}:00`);
+                if (hour < 22) times.push(`${String(hour).padStart(2, '0')}:30`);
+            }
+            times.forEach(slot => {
+                const slotElement = document.createElement('a');
+                slotElement.href = "#";
+                slotElement.dataset.time = slot;
+                slotElement.textContent = slot;
+                slotElement.addEventListener('click', handleTimeSlotSelection);
+                timeSlotsContainer.appendChild(slotElement);
+            });
+        }
+
+        function setMinDate() {
+            const dateInput = document.getElementById('date');
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const minDate = `${yyyy}-${mm}-${dd}`;
+            dateInput.setAttribute('min', minDate);
+        }
+
+        function handleTimeSlotSelection(event) {
+            event.preventDefault();
+            const selectedTime = event.target.getAttribute('data-time');
+            document.querySelector('input[name="time"]').value = selectedTime;
+
+            document.querySelectorAll('.time-slots a').forEach(slot => slot.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function disableBookedSlots() {
+            const dateInput = document.getElementById('date').value;
+            const timeSlots = document.querySelectorAll('.time-slots a');
+
+            timeSlots.forEach(slot => {
+                slot.classList.remove('disabled');
+                bookedSlots.forEach(booking => {
+                    const bookingDate = new Date(booking.Day).toISOString().split('T')[0];
+                    if (bookingDate === dateInput && booking.Time === slot.getAttribute('data-time')) {
+                        slot.classList.add('disabled');
+                    }
+                });
+            });
+        }
+
+        document.getElementById('date').addEventListener('change', disableBookedSlots);
+
+        window.onload = () => {
+            setMinDate();
+            generateTimeSlots();
+        };
+    </script>
+
+</body>
+
+</html>
