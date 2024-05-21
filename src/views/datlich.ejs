@@ -74,19 +74,19 @@
 
     <form id="scheduleForm" method="post" action="/schedule">
         <div class="form-group">
-            <label for="date">Ngày:</label>
+            <label for="date">Day:</label>
             <input type="date" id="date" name="date" required>
         </div>
 
         <div class="form-group">
-            <label for="time">Giờ:</label>
+            <label for="time">Time:</label>
             <div class="time-slots" id="timeSlots">
                 <!-- JavaScript will populate time slots here -->
             </div>
         </div>
 
         <div class="form-group">
-            <button type="submit">Đặt lịch</button>
+            <button type="submit">Schedule</button>
         </div>
         <input type="hidden" name="time" required>
     </form>
