@@ -117,102 +117,114 @@
     </div>
 
     <script>
-        const bookedSlots = <%- JSON.stringify(bookedSlots) %>;
+      // const bookedSlots = <%- JSON.stringify(bookedSlots) %>;
 
-        function generateTimeSlots() {
-            const timeSlotsContainer = document.getElementById("timeSlots");
-            const times = [];
-            for (let hour = 6; hour <= 22; hour++) {
-                times.push(`${String(hour).padStart(2, "0")}:00`);
-                if (hour < 22) times.push(`${String(hour).padStart(2, "0")}:30`);
+      function generateTimeSlots() {
+        const timeSlotsContainer = document.getElementById("timeSlots");
+        const times = [];
+        for (let hour = 6; hour <= 22; hour++) {
+          times.push(`${String(hour).padStart(2, "0")}:00`);
+          if (hour < 22) times.push(`${String(hour).padStart(2, "0")}:30`);
+        }
+
+        times.forEach((slot) => {
+          const slotElement = document.createElement("a");
+          slotElement.href = "#";
+          slotElement.dataset.time = slot;
+          slotElement.textContent = slot;
+
+          slotElement.addEventListener("click", handleTimeSlotSelection);
+
+          timeSlotsContainer.appendChild(slotElement);
+        });
+      }
+
+      function setMinDate() {
+        const dateInput = document.getElementById("date");
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const minDate = `${yyyy}-${mm}-${dd}`;
+        dateInput.setAttribute("min", minDate);
+      }
+
+      function handleTimeSlotSelection(event) {
+        event.preventDefault();
+        const selectedTime = event.target.getAttribute("data-time");
+        document.querySelector('input[name="time"]').value = selectedTime;
+
+        document
+          .querySelectorAll(".time-slots a")
+          .forEach((slot) => slot.classList.remove("selected"));
+        event.target.classList.add("selected");
+      }
+
+      function disableBookedSlots() {
+        const dateInput = document.getElementById("date").value;
+        const timeSlots = document.querySelectorAll(".time-slots a");
+
+        timeSlots.forEach((slot) => {
+          slot.classList.remove("disabled", "booked");
+          bookedSlots.forEach((booking) => {
+            const bookingDate = booking.Day.split("T")[0];
+            if (
+              bookingDate === dateInput &&
+              booking.Time === slot.getAttribute("data-time")
+            ) {
+              slot.classList.add("booked");
             }
+          });
+        });
+      }
 
-            times.forEach((slot) => {
-                const slotElement = document.createElement("a");
-                slotElement.href = "#";
-                slotElement.dataset.time = slot;
-                slotElement.textContent = slot;
+      document
+        .getElementById("date")
+        .addEventListener("change", disableBookedSlots);
 
-                slotElement.addEventListener("click", handleTimeSlotSelection);
+      document
+        .getElementById("scheduleForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
 
-                timeSlotsContainer.appendChild(slotElement);
-            });
-        }
+          const dateInput = document.getElementById("date");
+          const timeInput = document.querySelector('input[name="time"]');
 
-        function setMinDate() {
-            const dateInput = document.getElementById("date");
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, "0");
-            const dd = String(today.getDate()).padStart(2, "0");
-            const minDate = `${yyyy}-${mm}-${dd}`;
-            dateInput.setAttribute("min", minDate);
-        }
+          const date = new Date(dateInput.value);
+          const formattedDate = date.toISOString().split("T")[0];
 
-        function handleTimeSlotSelection(event) {
-            event.preventDefault();
-            const selectedTime = event.target.getAttribute("data-time");
-            document.querySelector('input[name="time"]').value = selectedTime;
+          const formData = {
+            date: formattedDate,
+            time: timeInput.value,
+          };
 
-            document.querySelectorAll(".time-slots a").forEach((slot) => slot.classList.remove("selected"));
-            event.target.classList.add("selected");
-        }
-
-        function disableBookedSlots() {
-            const dateInput = document.getElementById("date").value;
-            const timeSlots = document.querySelectorAll(".time-slots a");
-
-            timeSlots.forEach((slot) => {
-                slot.classList.remove("disabled", "booked");
-                bookedSlots.forEach((booking) => {
-                    const bookingDate = booking.Day.split('T')[0];
-                    if (bookingDate === dateInput && booking.Time === slot.getAttribute("data-time")) {
-                        slot.classList.add("booked");
-                    }
-                });
-            });
-        }
-
-        document.getElementById("date").addEventListener("change", disableBookedSlots);
-
-        document.getElementById("scheduleForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            const dateInput = document.getElementById('date');
-            const timeInput = document.querySelector('input[name="time"]');
-
-            const date = new Date(dateInput.value);
-            const formattedDate = date.toISOString().split('T')[0];
-
-            const formData = {
-                date: formattedDate,
-                time: timeInput.value
-            };
-
-            fetch('/schedule', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            }).then(response => {
-                if (response.ok) {
-                  return response.json(); // Trả về JSON nếu yêu cầu thành công
-                } else {
-                  throw new Error('Failed to book the slot');
-                }
-            }).then(data => {
-          // Nếu yêu cầu thành công, chuyển hướng đến trang bill với bookingId
-          window.location.href = `/bill?bookingId=${data.bookingId}`;
-      }).catch(error => {
-                console.error('Error:', error);
+          fetch("/schedule", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json(); // Trả về JSON nếu yêu cầu thành công
+              } else {
+                throw new Error("Failed to book the slot");
+              }
+            })
+            .then((data) => {
+              // Nếu yêu cầu thành công, chuyển hướng đến trang bill với bookingId
+              window.location.href = `/bill?bookingId=${data.bookingId}`;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
             });
         });
 
-        window.onload = () => {
-            setMinDate();
-            generateTimeSlots();
-        };
+      window.onload = () => {
+        setMinDate();
+        generateTimeSlots();
+      };
     </script>
   </body>
 </html>
