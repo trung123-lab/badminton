@@ -1,158 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Schedule Form</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+      .form-group input[type="date"] {
+        width: 300px;
+        padding: 12px;
+        font-size: 16px;
+      }
+      .form-group button {
+        width: 300px;
+        padding: 12px;
+        font-size: 16px;
+      }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
+      .form-group {
+        margin-bottom: 15px;
+      }
 
-        .form-group input,
-        .form-group select,
-        .form-group button {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
 
-        .time-slots {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-top: 10px;
-            background: white;
-        }
+      .form-group input,
+      .form-group select,
+      .form-group button {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
 
-        .time-slots a {
-            display: block;
-            text-align: center;
-            padding: 10px 0;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+      .time-slots {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-top: 10px;
+        background: white;
+        width: 400%;
+      }
 
-        .time-slots a:hover {
-            background-color: #0056b3;
-        }
+      .time-slots a {
+        display: block;
+        text-align: center;
+        padding: 20px 0;
+        font-size: 18px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        cursor: pointer;
+      }
 
-        .time-slots a.disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+      .time-slots a:hover {
+        background-color: #0056b3;
+      }
 
-        .time-slots a.selected {
-            background-color: gray;
-        }
+      .time-slots a.disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .time-slots a.selected {
+        background-color: gray;
+      }
+
+      .time-slots a.booked {
+        background-color: red;
+        cursor: not-allowed;
+      }
+
+      .container {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
     </style>
-</head>
-
-<body>
-
-    <form id="scheduleForm" method="post" action="/schedule">
+  </head>
+  <body>
+    <div class="container">
+      <form id="scheduleForm">
         <div class="form-group">
-            <label for="date">Day:</label>
-            <input type="date" id="date" name="date" required>
+          <label for="date">Day:</label>
+          <input type="date" id="date" name="date" required />
         </div>
-
         <div class="form-group">
-            <label for="time">Time:</label>
-            <div class="time-slots" id="timeSlots">
-                <!-- JavaScript will populate time slots here -->
-            </div>
+          <label for="time">Time:</label>
+          <div class="time-slots" id="timeSlots">
+            <!-- JavaScript will populate time slots here -->
+          </div>
         </div>
-
         <div class="form-group">
-            <button type="submit">Schedule</button>
+          <button type="submit">Schedule</button>
         </div>
-        <input type="hidden" name="time" required>
-    </form>
+        <input type="hidden" name="time" required />
+      </form>
+    </div>
 
     <script>
-        const bookedSlots = []; // Assuming bookedSlots is provided by the server-side
+        const bookedSlots = <%- JSON.stringify(bookedSlots) %>;
 
         function generateTimeSlots() {
-            const timeSlotsContainer = document.getElementById('timeSlots');
+            const timeSlotsContainer = document.getElementById("timeSlots");
             const times = [];
             for (let hour = 6; hour <= 22; hour++) {
-                times.push(`${String(hour).padStart(2, '0')}:00`);
-                if (hour < 22) times.push(`${String(hour).padStart(2, '0')}:30`);
+                times.push(`${String(hour).padStart(2, "0")}:00`);
+                if (hour < 22) times.push(`${String(hour).padStart(2, "0")}:30`);
             }
-            times.forEach(slot => {
-                const slotElement = document.createElement('a');
+
+            times.forEach((slot) => {
+                const slotElement = document.createElement("a");
                 slotElement.href = "#";
                 slotElement.dataset.time = slot;
                 slotElement.textContent = slot;
-                slotElement.addEventListener('click', handleTimeSlotSelection);
+
+                slotElement.addEventListener("click", handleTimeSlotSelection);
+
                 timeSlotsContainer.appendChild(slotElement);
             });
         }
 
         function setMinDate() {
-            const dateInput = document.getElementById('date');
+            const dateInput = document.getElementById("date");
             const today = new Date();
             const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, "0");
+            const dd = String(today.getDate()).padStart(2, "0");
             const minDate = `${yyyy}-${mm}-${dd}`;
-            dateInput.setAttribute('min', minDate);
+            dateInput.setAttribute("min", minDate);
         }
 
         function handleTimeSlotSelection(event) {
             event.preventDefault();
-            const selectedTime = event.target.getAttribute('data-time');
+            const selectedTime = event.target.getAttribute("data-time");
             document.querySelector('input[name="time"]').value = selectedTime;
 
-            document.querySelectorAll('.time-slots a').forEach(slot => slot.classList.remove('selected'));
-            event.target.classList.add('selected');
+            document.querySelectorAll(".time-slots a").forEach((slot) => slot.classList.remove("selected"));
+            event.target.classList.add("selected");
         }
 
         function disableBookedSlots() {
-            const dateInput = document.getElementById('date').value;
-            const timeSlots = document.querySelectorAll('.time-slots a');
+            const dateInput = document.getElementById("date").value;
+            const timeSlots = document.querySelectorAll(".time-slots a");
 
-            timeSlots.forEach(slot => {
-                slot.classList.remove('disabled');
-                bookedSlots.forEach(booking => {
-                    const bookingDate = new Date(booking.Day).toISOString().split('T')[0];
-                    if (bookingDate === dateInput && booking.Time === slot.getAttribute('data-time')) {
-                        slot.classList.add('disabled');
+            timeSlots.forEach((slot) => {
+                slot.classList.remove("disabled", "booked");
+                bookedSlots.forEach((booking) => {
+                    const bookingDate = booking.Day.split('T')[0];
+                    if (bookingDate === dateInput && booking.Time === slot.getAttribute("data-time")) {
+                        slot.classList.add("booked");
                     }
                 });
             });
         }
 
-        document.getElementById('date').addEventListener('change', disableBookedSlots);
+        document.getElementById("date").addEventListener("change", disableBookedSlots);
+
+        document.getElementById("scheduleForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const dateInput = document.getElementById('date');
+            const timeInput = document.querySelector('input[name="time"]');
+
+            const date = new Date(dateInput.value);
+            const formattedDate = date.toISOString().split('T')[0];
+
+            const formData = {
+                date: formattedDate,
+                time: timeInput.value
+            };
+
+            fetch('/schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            }).then(response => {
+                if (response.ok) {
+                  return response.json(); // Trả về JSON nếu yêu cầu thành công
+                } else {
+                  throw new Error('Failed to book the slot');
+                }
+            }).then(data => {
+          // Nếu yêu cầu thành công, chuyển hướng đến trang bill với bookingId
+          window.location.href = `/bill?bookingId=${data.bookingId}`;
+      }).catch(error => {
+                console.error('Error:', error);
+            });
+        });
 
         window.onload = () => {
             setMinDate();
             generateTimeSlots();
         };
     </script>
-
-</body>
-
+  </body>
 </html>

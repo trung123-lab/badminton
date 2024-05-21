@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Invoice</title>
+    <style>
+      .booking-table {
+        border-collapse: collapse;
+        width: 50%;
+        float: left;
+      }
+
+      .booking-table th,
+      .booking-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      .booking-table th {
+        background-color: #f2f2f2;
+      }
+
+      .booking-details {
+        float: left;
+        margin-left: 20px;
+      }
+      .button-container {
+        text-align: left;
+        margin-top: 20px;
+      }
+
+      .button-container button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      .button-container button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="booking-table">
+        <h2>Booking Invoice</h2>
+        <table border="1">
+          <tr>
+            <th>Attribute</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td><strong>Booking ID:</strong></td>
+            <td><%= booking.id %></td>
+          </tr>
+          <tr>
+            <td><strong>Date:</strong></td>
+            <td><%= booking.Day %></td>
+          </tr>
+          <tr>
+            <td><strong>Time:</strong></td>
+            <td><%= booking.Time %></td>
+          </tr>
+        </table>
+        <div class="button-container">
+          <button type="button" id="countinueBookingbtn">
+            CountinueBooking
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("countinueBookingbtn")
+        .addEventListener("click", function () {
+          window.location.href = "/schedule";
+        });
+    </script>
+  </body>
+</html>
