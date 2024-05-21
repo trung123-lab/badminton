@@ -8,8 +8,8 @@
     "start": "nodemon ./src/index.js"
   },
   "keywords": [
-    "Node",
-    "js"
+    "Node js",
+    "react js"
   ],
   "author": "Trung",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "mssql": "^10.0.2",
     "mysql2": "^3.9.7"
   },
   "devDependencies": {

@@ -117,8 +117,8 @@
     </div>
 
     <script>
-      // const bookedSlots = <%- JSON.stringify(bookedSlots) %>;
-
+      const bookedSlots = <%- JSON.stringify(bookedSlots) %>;
+      console.log(bookedSlots);
       function generateTimeSlots() {
         const timeSlotsContainer = document.getElementById("timeSlots");
         const times = [];
