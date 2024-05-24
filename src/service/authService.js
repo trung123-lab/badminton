@@ -1,10 +1,11 @@
-import Account from "../models/account";
+import Account from "../models/account.js";
 
 export const createAccount = async (username, password) => {
-  try {
-    const newAccount = await Account.create({ username, password });
-    return newAccount;
-  } catch (error) {
-    throw new Error("Error creating account:", error.message);
-  }
+  const newAccount = await Account.create({ username, password });
+  return newAccount;
+};
+
+export const checkLogin = async (username, password) => {
+  const account = await Account.findOne({ where: { username, password } });
+  return account;
 };

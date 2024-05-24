@@ -1,15 +1,12 @@
-import Schedule from "../models/schedule.js";
-import sequelize from "../config/database.js"; // Thêm dòng này để import biến sequelize
+import {
+  getAllSchedule,
+  getScheduleById,
+  createSchedule,
+} from "../service/scheduleService.js";
 
 const showSchedule = async (req, res) => {
   try {
-    const schedules = await Schedule.findAll({
-      attributes: [
-        "id",
-        [sequelize.fn("DATE_FORMAT", sequelize.col("Day"), "%Y-%m-%d"), "Day"],
-        "Time",
-      ],
-    });
+    const schedules = await getAllSchedule();
     console.log(schedules);
     res.render("datlich", { bookedSlots: schedules });
   } catch (err) {
@@ -22,9 +19,8 @@ const bookSchedule = async (req, res) => {
   const { date, time } = req.body;
 
   try {
-    const schedule = await Schedule.create({ Day: date, Time: time });
-    const bookingId = schedule.id; // Lấy ID của lịch vừa đặt
-
+    const schedule = await createSchedule(date, time);
+    const bookingId = await schedule.id; // Lấy ID của lịch vừa đặt
     // Chuyển hướng đến trang hóa đơn và truyền thông tin đặt lịch
     res.json({ bookingId });
   } catch (err) {
@@ -37,13 +33,7 @@ const showBill = async (req, res) => {
   const bookingId = req.query.bookingId;
 
   try {
-    const schedule = await Schedule.findByPk(bookingId, {
-      attributes: [
-        "id",
-        [sequelize.fn("DATE_FORMAT", sequelize.col("Day"), "%Y-%m-%d"), "Day"],
-        "Time",
-      ],
-    });
+    const schedule = await getScheduleById(bookingId);
 
     if (!schedule) {
       return res.status(404).send("Booking not found");
